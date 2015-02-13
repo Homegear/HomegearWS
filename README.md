@@ -4,7 +4,8 @@ HomegearWS is a JavaScript class to communicate with Homegear bidirectionally us
 
 ## Requirements
 
-* Homegear Version >= 0.6.0
+* Homegear version >= 0.6.0
+* A current web browser
 
 ## Usage example
 
@@ -14,7 +15,8 @@ HomegearWS is a JavaScript class to communicate with Homegear bidirectionally us
 var homegear = new HomegearWS('192.168.0.142', 2001, 'MyTestClient');
 ```
 
-The first parameter is the IP address of Homegear, the second the RPC port, the third an arbitrary client id. If you want to connect to Homegear using SSL and authentication the object creation looks like this:
+The first parameter is the IP address or hostname of Homegear, the second the RPC port and the third an arbitrary client id.
+If you want to connect to Homegear using SSL and authentication, the object creation looks like this:
 
 ```
 var homegear = new HomegearWS('192.168.0.142', 2003, 'MyTestClient', true, 'homegear', 'homegear');
