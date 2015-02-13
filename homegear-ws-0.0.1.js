@@ -40,7 +40,7 @@ function HomegearWS(host, port, id, ssl, user, password)
 	this.port = (typeof port !== 'undefined') ? port : '2001';
 	this.id = (typeof id !== 'undefined') ? id : 'HomegearWS';
 	this.id += "-" + this.getGuid();
-	this.ssl = (typeof ssl !== 'undefined') ? (ssl === 'true' || ssl === true) : 'false';
+	this.ssl = (typeof ssl !== 'undefined') ? (ssl === 'true' || ssl === true) : false;
 	this.auth = user ? true : false;
 	this.user = (typeof user !== 'undefined') ? user : undefined;
 	this.password = (typeof password !== 'undefined') ? password : undefined;
@@ -212,6 +212,7 @@ HomegearWS.prototype.subscribePeers = function() {
 }
 
 HomegearWS.prototype.invoke = function(methodName) {
+	if(!this.isReady()) return;
 	var counter = this.messageCounter++;
 	if(typeof arguments[0] === 'object' && typeof arguments[0].method !== 'undefined') {
 		if(typeof arguments[1] === 'function') this.requests['c' + counter] = arguments[1];
