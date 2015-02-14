@@ -48,16 +48,18 @@ function HomegearWS(host, port, id, ssl, user, password)
 	this.server = null;
 	this.clientAuthenticated = !this.auth;
 	this.serverAuthenticated = !this.auth;
-	this.onEvent = null;
-	this.onReady = null;
-	this.onError = null;
+	this.onEvent = Array();
+	this.onReady = Array();
+	this.onError = Array();
 	this.peers = Array();
 	this.enabled = false;
-	this.messageCounter = 0;
+	this.messageCounter = 1;
 	this.requests = {};
+	this.sending = false;
 }
 
 HomegearWS.prototype.connect = function() {
+	this.disconnect();
 	this.enabled = true;
 	this.connectClient();
 	this.connectServer();
@@ -65,8 +67,39 @@ HomegearWS.prototype.connect = function() {
 
 HomegearWS.prototype.disconnect = function() {
 	this.enabled = false;
+	this.sending = false;
 	if(this.server) this.server.close();
 	if(this.client) this.client.close();
+}
+
+HomegearWS.prototype.error = function(callback) {
+	if(typeof callback === 'function') this.onError.push(callback);
+}
+
+HomegearWS.prototype.invokeError = function(message) {
+	for(i in this.onError) {
+		if(typeof this.onError[i] === 'function') this.onError[i](message); 
+	}
+}
+
+HomegearWS.prototype.ready = function(callback) {
+	if(typeof callback === 'function') this.onReady.push(callback);
+}
+
+HomegearWS.prototype.invokeReady = function() {
+	for(i in this.onReady) {
+		if(typeof this.onReady[i] === 'function') this.onReady[i](); 
+	}
+}
+
+HomegearWS.prototype.event = function(callback) {
+	if(typeof callback === 'function') this.onEvent.push(callback);
+}
+
+HomegearWS.prototype.invokeEvent = function(data) {
+	for(i in this.onEvent) {
+		if(typeof this.onEvent[i] === 'function') this.onEvent[i](data); 
+	}
 }
 
 HomegearWS.prototype.connectServer = function() {
@@ -76,11 +109,11 @@ HomegearWS.prototype.connectServer = function() {
 		if(!("auth" in response)) {
 			request = {}
 			this.server.send(JSON.stringify(request));
-			if(typeof this.onEvent === 'function') this.onEvent(response);
+			this.invokeEvent(response);
 		} else if(response.auth == "success") {
 			this.serverAuthenticated = true;
 			homegearWsSetTimeout.call(this, this.subscribePeers, 1000);
-		} else if(typeof this.onError === 'function') this.onError("Authentication failed.");
+		} else this.invokeError("Authentication failed.");
 	}.bind(this);
 	this.server.onopen = function(event) {
 		if(this.auth) {
@@ -97,29 +130,31 @@ HomegearWS.prototype.connectServer = function() {
 		if(this.enabled)
 		{
 			homegearWsSetTimeout.call(this, this.connectServer, 5000);
-			if(typeof this.onError === 'function') this.onError("Server disconnected.");
+			this.invokeError("Server disconnected.");
 		}
 	}.bind(this);
 	this.server.onerror = function(event)
 	{
 		if(this.auth) this.serverAuthenticated = false;
 		homegearWsSetTimeout.call(this, this.connectServer, 5000);
-		if(typeof this.onError === 'function') this.onError(event.data);
+		this.invokeError(event.data);
 	}.bind(this);
 }
 
 HomegearWS.prototype.connectClient = function() {
 	this.client = new WebSocket(((this.ssl) ? 'wss://' : 'ws://') + this.host + ':' + this.port + '/' + this.id, 'server');
 	this.client.onmessage = function(event) {
+		this.sending = false;
 		response = JSON.parse(event.data);
 		if("auth" in response) {
 			if(response.auth == 'success') this.clientAuthenticated = true;
-			else if(typeof this.onError === 'function') this.onError("Authentication failed.");
+			else this.invokeError("Authentication failed.");
 		}
-		else if(typeof response.id !== 'undefined' && typeof this.requests['c' + response.id] !== 'undefined')
+		else if(typeof response.id !== 'undefined' && typeof this.requests['c' + response.id] === 'function')
 		{
 			this.requests['c' + response.id](response);
 			delete this.requests['c' + response.id];
+			
 		}
 	}.bind(this);
 	this.client.onopen = function(event) {
@@ -128,7 +163,7 @@ HomegearWS.prototype.connectClient = function() {
 				user: this.user,
 				password: this.password
 			};
-			this.client.send(JSON.stringify(request));
+			this.send(JSON.stringify(request));
 		}
 	}.bind(this);
 	this.client.onclose = function(event) {
@@ -136,14 +171,14 @@ HomegearWS.prototype.connectClient = function() {
 		if(this.enabled)
 		{
 			homegearWsSetTimeout.call(this, this.connectClient, 5000);
-			if(typeof this.onError === 'function') this.onError("Client disconnected.");
+			this.invokeError("Client disconnected.");
 		}
 	}.bind(this);
 	this.client.onerror = function(event)
 	{
 		if(this.auth) clientAuthenticated = false;
 		homegearWsSetTimeout.call(this, this.connectClient, 5000);
-		if(typeof this.onError === 'function') this.onError(event.data);
+		this.invokeError(event.data);
 	}.bind(this);
 }
 
@@ -167,7 +202,7 @@ HomegearWS.prototype.addPeers = function(ids) {
 		}
 	}
 	if(!this.isReady() || newPeers.length == 0) return;
-	this.client.send(JSON.stringify({method:"subscribePeers",params:[this.id, newPeers]}));
+	this.send(JSON.stringify({method:"subscribePeers",params:[this.id, newPeers]}));
 }
 
 HomegearWS.prototype.removePeers = function(ids) {
@@ -181,7 +216,7 @@ HomegearWS.prototype.removePeers = function(ids) {
 		}
 	}
 	if(!this.isReady() || peersToRemove.length == 0) return;
-	this.client.send(JSON.stringify({method:"unsubscribePeers",params:[this.id, peersToRemove]}));
+	this.send(JSON.stringify({method:"unsubscribePeers",params:[this.id, peersToRemove]}));
 }
 
 HomegearWS.prototype.addPeer = function(id) {
@@ -189,7 +224,7 @@ HomegearWS.prototype.addPeer = function(id) {
 	if(index > -1) return;
 	this.peers.push(id);
 	if(!this.isReady()) return;
-	this.client.send(JSON.stringify({method:"subscribePeers",params:[this.id, [id]]}));
+	this.send(JSON.stringify({method:"subscribePeers",params:[this.id, [id]]}));
 }
 
 HomegearWS.prototype.removePeer = function(id) {
@@ -198,7 +233,7 @@ HomegearWS.prototype.removePeer = function(id) {
 		this.peers.splice(index, 1);
 	}
 	if(!this.isReady()) return;
-	this.client.send(JSON.stringify({method:"unsubscribePeers",params:[this.id, [id]]}));
+	this.send(JSON.stringify({method:"unsubscribePeers",params:[this.id, [id]]}));
 }
 
 HomegearWS.prototype.isReady = function() {
@@ -207,8 +242,18 @@ HomegearWS.prototype.isReady = function() {
 
 HomegearWS.prototype.subscribePeers = function() {
 	if(!this.isReady()) return;
-	this.client.send(JSON.stringify({method:"subscribePeers",params:[this.id, this.peers]}));
-	if(typeof this.onReady === 'function') this.onReady();
+	this.send(JSON.stringify({method:"subscribePeers",params:[this.id, this.peers]}));
+	this.invokeReady();
+}
+
+HomegearWS.prototype.send = function(data) {
+	if(this.sending)
+	{
+		homegearWsSetTimeout.call(this, this.send, 5, data);
+		return;
+	}
+	this.sending = true;
+	this.client.send(data);
 }
 
 HomegearWS.prototype.invoke = function(methodName) {
@@ -217,7 +262,7 @@ HomegearWS.prototype.invoke = function(methodName) {
 	if(typeof arguments[0] === 'object' && typeof arguments[0].method !== 'undefined') {
 		if(typeof arguments[1] === 'function') this.requests['c' + counter] = arguments[1];
 		arguments[0].id = counter;
-		this.client.send(JSON.stringify(arguments[0]));
+		this.send(JSON.stringify(arguments[0]));
 	} else {
 		if(typeof methodName !== 'string') return;
 		var request = {
@@ -227,6 +272,6 @@ HomegearWS.prototype.invoke = function(methodName) {
 		}
 		if(arguments.length > 1 && typeof arguments[1] === 'function') this.requests['c' + counter] = arguments[1];
 		if(arguments.length > 2) request.params = Array.prototype.slice.call(arguments, 2);
-		this.client.send(JSON.stringify(request));
+		this.send(JSON.stringify(request));
 	}
 }

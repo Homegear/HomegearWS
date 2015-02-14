@@ -28,21 +28,21 @@ The fourth parameter enables SSL, the fifth is the username and the last paramet
 
 There are four callback functions you can set:
 
-##### onReady()
+##### onReady(callback)
 
-Called when the connection to Homegear has been successfully established. You can also manually check if you're connected to Homegear by calling:
+The passed callback function is called when the connection to Homegear has been successfully established. You can also manually check if you're connected to Homegear by calling:
 
 ```
 homegear.isReady();
 ```
 
-##### onEvent(object jsonRpc)
+##### onEvent(callback)
 
-Called when the Browser received an event from Homegear. The message is JSON encoded and contains a JSON remote procedure call.
+The callback function is called when the Browser received an event from Homegear. One parameter is passed to the function: The JSON-RPC encoded message.
 
-##### onError(string message)
+##### onError(callback)
 
-Called on error, e. g. an unexpected disconnect or if authentication failed.
+The callback function is called on error, e. g. an unexpected disconnect or if authentication failed. It has one parameter: The error message.
 
 ### Connect and disconnect
 
@@ -57,7 +57,7 @@ When the connection is disrupted, the class automatically tries to reconnect.
 To disconnect, call:
 
 ```
-homegear.connect();
+homegear.disconnect();
 ```
 
 ### Invoke RPC methods
