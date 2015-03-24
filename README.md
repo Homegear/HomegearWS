@@ -26,9 +26,9 @@ The fourth parameter enables SSL, the fifth is the username and the last paramet
 
 ### Set callback functions
 
-There are four callback functions you can set:
+There are three callback functions you can set:
 
-##### onReady(callback)
+##### ready(callback)
 
 The passed callback function is called when the connection to Homegear has been successfully established. You can also manually check if you're connected to Homegear by calling:
 
@@ -36,11 +36,11 @@ The passed callback function is called when the connection to Homegear has been 
 homegear.isReady();
 ```
 
-##### onEvent(callback)
+##### event(callback)
 
 The callback function is called when the Browser received an event from Homegear. One parameter is passed to the function: The JSON-RPC encoded message.
 
-##### onError(callback)
+##### error(callback)
 
 The callback function is called on error, e. g. an unexpected disconnect or if authentication failed. It has one parameter: The error message.
 
