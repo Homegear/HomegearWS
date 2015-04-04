@@ -56,6 +56,8 @@ function HomegearWS(host, port, id, ssl, user, password)
 	this.messageCounter = 1;
 	this.requests = {};
 	this.sending = false;
+	this.connectClientTimer = null;
+	this.connectServerTimer = null;
 }
 
 HomegearWS.prototype.connect = function() {
@@ -68,8 +70,14 @@ HomegearWS.prototype.connect = function() {
 HomegearWS.prototype.disconnect = function() {
 	this.enabled = false;
 	this.sending = false;
-	if(this.server) this.server.close();
-	if(this.client) this.client.close();
+	if(this.server) {
+		this.server.close();
+		this.server = null;
+	}
+	if(this.client) {
+		this.client.close();
+		this.client = null;
+	}
 }
 
 HomegearWS.prototype.error = function(callback) {
@@ -129,14 +137,18 @@ HomegearWS.prototype.connectServer = function() {
 		if(this.auth) this.serverAuthenticated = false;
 		if(this.enabled)
 		{
-			homegearWsSetTimeout.call(this, this.connectServer, 5000);
+			this.server = null;
+			clearTimeout(this.connectServerTimer);
+			this.connectServerTimer = homegearWsSetTimeout.call(this, this.connectServer, 5000);
 			this.invokeError("Server disconnected.");
 		}
 	}.bind(this);
 	this.server.onerror = function(event)
 	{
+		this.server = null;
 		if(this.auth) this.serverAuthenticated = false;
-		homegearWsSetTimeout.call(this, this.connectServer, 5000);
+		clearTimeout(this.connectServerTimer);
+		this.connectServerTimer = homegearWsSetTimeout.call(this, this.connectServer, 5000);
 		this.invokeError(event.data);
 	}.bind(this);
 }
@@ -167,17 +179,21 @@ HomegearWS.prototype.connectClient = function() {
 		}
 	}.bind(this);
 	this.client.onclose = function(event) {
-		if(this.auth) clientAuthenticated = false;
+		if(this.auth) this.clientAuthenticated = false;
 		if(this.enabled)
 		{
-			homegearWsSetTimeout.call(this, this.connectClient, 5000);
+			this.client = null;
+			clearTimeout(this.connectClientTimer);
+			this.connectClientTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
 			this.invokeError("Client disconnected.");
 		}
 	}.bind(this);
 	this.client.onerror = function(event)
 	{
-		if(this.auth) clientAuthenticated = false;
-		homegearWsSetTimeout.call(this, this.connectClient, 5000);
+		this.client = null;
+		if(this.auth) this.clientAuthenticated = false;
+		clearTimeout(this.connectClientTimer);
+		this.connectClientTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
 		this.invokeError(event.data);
 	}.bind(this);
 }
@@ -253,7 +269,7 @@ HomegearWS.prototype.send = function(data) {
 		return;
 	}
 	this.sending = true;
-	this.client.send(data);
+	if(this.client) this.client.send(data);
 }
 
 HomegearWS.prototype.invoke = function(methodName) {
