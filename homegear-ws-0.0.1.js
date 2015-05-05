@@ -253,7 +253,7 @@ HomegearWS.prototype.removePeer = function(id) {
 }
 
 HomegearWS.prototype.isReady = function() {
-	return this.server.OPEN && this.client.OPEN && this.serverAuthenticated && this.clientAuthenticated;
+	return this.server && this.server.OPEN && this.client && this.client.OPEN && this.serverAuthenticated && this.clientAuthenticated;
 }
 
 HomegearWS.prototype.subscribePeers = function() {
