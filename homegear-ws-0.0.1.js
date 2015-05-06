@@ -120,7 +120,7 @@ HomegearWS.prototype.connectServer = function() {
 			this.invokeEvent(response);
 		} else if(response.auth == "success") {
 			this.serverAuthenticated = true;
-			homegearWsSetTimeout.call(this, this.subscribePeers, 1000);
+			setTimeout(this.subscribePeers.bind(this), 0);
 		} else this.invokeError("Authentication failed.");
 	}.bind(this);
 	this.server.onopen = function(event) {
@@ -131,7 +131,7 @@ HomegearWS.prototype.connectServer = function() {
 			};
 			this.server.send(JSON.stringify(request));
 		}
-		else homegearWsSetTimeout.call(this, this.subscribePeers, 1000);
+		else setTimeout(this.subscribePeers.bind(this), 0);
 	}.bind(this);
 	this.server.onclose = function(event) {
 		if(this.auth) this.serverAuthenticated = false;
@@ -265,7 +265,7 @@ HomegearWS.prototype.subscribePeers = function() {
 HomegearWS.prototype.send = function(data) {
 	if(this.sending)
 	{
-		homegearWsSetTimeout.call(this, this.send, 5, data);
+		homegearWsSetTimeout.call(this, this.send, 0, data);
 		return;
 	}
 	this.sending = true;
