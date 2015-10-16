@@ -54,7 +54,7 @@ if(isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] 
       </form>
 
     </div>
-    <script src="js/jquery.2.1.3.min.js"></script>
+    <script src="js/jquery.2.1.4.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
   </body>
 </html>
