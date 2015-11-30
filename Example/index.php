@@ -41,7 +41,7 @@ ini_set('session.gc_maxlifetime', 5);
 			}
 
 			function homegearEvent(message) {
-				$('log').html(JSON.stringify(message, null, '\t'));
+				$('#log').html(JSON.stringify(message, null, '\t'));
 			}
 
 			$(document).ready(function() {;
