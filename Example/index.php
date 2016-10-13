@@ -1,6 +1,19 @@
 <?php
 require_once("user.php");
 
+function clientInPrivateNet() : bool {
+    $clientIp = ip2long($_SERVER['REMOTE_ADDR']);
+    $bcast10 = ip2long('255.0.0.0');
+    $nmask10 = ip2long('10.0.0.0');
+    $bcast172 = ip2long('255.240.0.0');
+    $nmask172 = ip2long('172.16.0.0');
+    $bcast192 = ip2long('255.255.0.0');
+    $nmask192 = ip2long('192.168.0.0');
+    return (($clientIp & $bcast10) == $nmask10) || (($clientIp & $bcast172) == $nmask172) || (($clientIp & $bcast192) == $nmask192);
+}
+
+if((!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") && !clientInPrivateNet()) die('unauthorized');
+
 $user = new User();
 if(!$user->checkAuth(true)) die();
 
@@ -44,7 +57,7 @@ ini_set('session.gc_maxlifetime', 5);
 				$('#log').html(JSON.stringify(message, null, '\t'));
 			}
 
-			$(document).ready(function() {;
+			$(document).ready(function() {
 				var ssl = window.location.protocol == "https:" ? true : false;
 				var hostArray = window.location.host.split(':');
 				var server = hostArray[0];
@@ -54,12 +67,8 @@ ini_set('session.gc_maxlifetime', 5);
 				} else if(ssl) {
 					port = '443';
 				}
-				if(ssl) {
-					var sessionId = readCookie('PHPSESSID');
-					homegear = new HomegearWS(server, port, 'HomegearApp', true, sessionId);
-				} else {
-					homegear = new HomegearWS(server, port, 'HomegearApp');
-				}
+				var sessionId = readCookie('PHPSESSID');
+				homegear = new HomegearWS(server, port, 'HomegearApp', ssl, sessionId);
 				homegear.ready(homegearReady);
 				homegear.error(function(message) {
 					if(!message) return;

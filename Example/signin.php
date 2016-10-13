@@ -7,9 +7,7 @@ if(isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] 
   $user = new User();
   if($user->login($_POST["username"], $_POST["password"]))
   {
-    $url = isset($_POST["url"]) ? trim($_POST["url"]) : "";
-    if($url) header("Location: ".$url);
-    else header("Location: index.php");
+    header("Location: index.php");
   }
   else $loginFailed = true;
 }
