@@ -1,15 +1,33 @@
 <?php
 require_once("user.php");
 
-function clientInPrivateNet() : bool {
-    $clientIp = ip2long($_SERVER['REMOTE_ADDR']);
-    $bcast10 = ip2long('255.0.0.0');
-    $nmask10 = ip2long('10.0.0.0');
-    $bcast172 = ip2long('255.240.0.0');
-    $nmask172 = ip2long('172.16.0.0');
-    $bcast192 = ip2long('255.255.0.0');
-    $nmask192 = ip2long('192.168.0.0');
-    return (($clientIp & $bcast10) == $nmask10) || (($clientIp & $bcast172) == $nmask172) || (($clientIp & $bcast192) == $nmask192);
+function ipIsV6($ip) : int
+{
+	return strpos($ip, ':') !== false;
+}
+
+function clientInPrivateNet() : bool
+{
+	if(substr($_SERVER['REMOTE_ADDR'], 0, 7) == '::ffff:' && strpos($_SERVER['REMOTE_ADDR'], '.') !== false) $_SERVER['REMOTE_ADDR'] = substr($_SERVER['REMOTE_ADDR'], 7);
+
+	if(ipIsV6($_SERVER['REMOTE_ADDR']))
+	{
+		$ip6 = substr($_SERVER['REMOTE_ADDR'], 0, 6);
+		$ip2 = substr($ip6, 0, 2);
+
+		return $ip6 == 'fe80::' || $ip2 == 'fc' || $ip2 == 'fd';
+	}
+	else
+	{
+	    $clientIp = ip2long($_SERVER['REMOTE_ADDR']);
+	    $bcast10 = ip2long('255.0.0.0');
+	    $nmask10 = ip2long('10.0.0.0');
+	    $bcast172 = ip2long('255.240.0.0');
+	    $nmask172 = ip2long('172.16.0.0');
+	    $bcast192 = ip2long('255.255.0.0');
+	    $nmask192 = ip2long('192.168.0.0');
+	    return (($clientIp & $bcast10) == $nmask10) || (($clientIp & $bcast172) == $nmask172) || (($clientIp & $bcast192) == $nmask192);
+	}
 }
 
 if((!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") && !clientInPrivateNet()) die('unauthorized');
@@ -59,11 +77,10 @@ ini_set('session.gc_maxlifetime', 5);
 
 			$(document).ready(function() {
 				var ssl = window.location.protocol == "https:" ? true : false;
-				var hostArray = window.location.host.split(':');
-				var server = hostArray[0];
+				var server = window.location.host.substring(0, window.location.host.lastIndexOf(":"));
 				var port = '80';
-				if(hostArray.length > 1) {
-					port = hostArray[1];
+				if((window.location.host.indexOf("]") != -1 && window.location.host.lastIndexOf(":") > window.location.host.indexOf("]")) || (window.location.host.indexOf("]") == -1 && window.location.host.indexOf(":") != -1)) {
+					port = window.location.host.substring(window.location.host.lastIndexOf(":") + 1, window.location.host.length);
 				} else if(ssl) {
 					port = '443';
 				}
