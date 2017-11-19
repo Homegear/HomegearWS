@@ -3,6 +3,7 @@ class User
 {
     public function __construct()
     {
+        ini_set('session.gc_maxlifetime', 5);
         session_start();
     }
 

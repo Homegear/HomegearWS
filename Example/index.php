@@ -34,8 +34,6 @@ if((!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") && !clientInPrivateN
 
 $user = new User();
 if(!$user->checkAuth(true)) die();
-
-ini_set('session.gc_maxlifetime', 5);
 ?>
 <!DOCTYPE html>
 <html lang="en">
