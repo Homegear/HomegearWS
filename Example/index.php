@@ -58,14 +58,20 @@ if(!$user->checkAuth(true)) die();
 
 			function homegearReady() {
 				$('.hg-alert-socket-error').remove();
+				homegear.invoke("setLanguage", function(message) {
+					homegear.invoke("getParamsetDescription", function(message) {
+						$('#log').html(JSON.stringify(message.result, null, '\t'));
+					}, 52, 1, "VALUES");
+				}, "en-US");
+
 				homegear.invoke("listDevices", function(message) {
-					$('#log').html(JSON.stringify(message.result, null, '\t'));
-					if(message.result.constructor !== Array) return;
+					//$('#log').html(JSON.stringify(message.result, null, '\t'));
+					/*if(message.result.constructor !== Array) return;
 					var ids = [];
 					for(var i = 0; i < message.result.length; i++) {
 						ids.push(message.result[i].ID);
 					}
-					homegear.addPeers(ids);
+					homegear.addPeers(ids);*/
 				}, false, [ 'ID', 'ADDRESS', 'FAMILY', 'TYPE' ]);
 			}
 

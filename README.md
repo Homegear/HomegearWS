@@ -24,6 +24,8 @@ var homegear = new HomegearWS('192.168.0.142', 2003, 'MyTestClient', true, 'home
 
 The fourth parameter enables SSL, the fifth is the username and the last parameter the password.
 
+When session authentication is enabled, set the PHP session ID as user name. Make sure to set the PHP session variable "user" to the correct user name as this variable is retrieved by Homegear.
+
 ### Set callback functions
 
 There are three callback functions you can set:
