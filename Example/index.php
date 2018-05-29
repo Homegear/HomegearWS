@@ -46,7 +46,7 @@ if(!$user->checkAuth(true)) die();
 		<title>HomegearWS example</title>
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/index.css" rel="stylesheet">
-		<script type="text/javascript" src="js/homegear-ws-0.0.1.js"></script>
+		<script type="text/javascript" src="js/homegear-ws-1.0.0.min.js"></script>
 		<script type="text/javascript" src="js/jquery.2.1.4.min.js"></script>
 		<script type="text/javascript">
 			var homegear;
@@ -58,20 +58,16 @@ if(!$user->checkAuth(true)) die();
 
 			function homegearReady() {
 				$('.hg-alert-socket-error').remove();
-				homegear.invoke("setLanguage", function(message) {
-					homegear.invoke("getParamsetDescription", function(message) {
-						$('#log').html(JSON.stringify(message.result, null, '\t'));
-					}, 52, 1, "VALUES");
-				}, "en-US");
+				homegear.invoke("setLanguage", null, "en-US");
 
 				homegear.invoke("listDevices", function(message) {
-					//$('#log').html(JSON.stringify(message.result, null, '\t'));
-					/*if(message.result.constructor !== Array) return;
+					$('#log').html(JSON.stringify(message.result, null, '\t'));
+					if(message.result.constructor !== Array) return;
 					var ids = [];
 					for(var i = 0; i < message.result.length; i++) {
 						ids.push(message.result[i].ID);
 					}
-					homegear.addPeers(ids);*/
+					homegear.addPeers(ids);
 				}, false, [ 'ID', 'ADDRESS', 'FAMILY', 'TYPE' ]);
 			}
 
@@ -89,7 +85,7 @@ if(!$user->checkAuth(true)) die();
 					port = '443';
 				}
 				var sessionId = readCookie('PHPSESSID');
-				homegear = new HomegearWS(server, port, 'HomegearApp', ssl, sessionId);
+				homegear = new HomegearWS(server, port, 'HomegearApp', ssl, sessionId, '', true);
 				homegear.ready(homegearReady);
 				homegear.error(function(message) {
 					if(!message) return;
