@@ -1,36 +1,8 @@
 <?php
 require_once("user.php");
 
-function ipIsV6($ip) : int
-{
-	return strpos($ip, ':') !== false;
-}
-
-function clientInPrivateNet() : bool
-{
-	if(substr($_SERVER['REMOTE_ADDR'], 0, 7) == '::ffff:' && strpos($_SERVER['REMOTE_ADDR'], '.') !== false) $_SERVER['REMOTE_ADDR'] = substr($_SERVER['REMOTE_ADDR'], 7);
-
-	if(ipIsV6($_SERVER['REMOTE_ADDR']))
-	{
-		$ip6 = substr($_SERVER['REMOTE_ADDR'], 0, 6);
-		$ip2 = substr($ip6, 0, 2);
-
-		return $ip6 == 'fe80::' || $ip2 == 'fc' || $ip2 == 'fd';
-	}
-	else
-	{
-	    $clientIp = ip2long($_SERVER['REMOTE_ADDR']);
-	    $bcast10 = ip2long('255.0.0.0');
-	    $nmask10 = ip2long('10.0.0.0');
-	    $bcast172 = ip2long('255.240.0.0');
-	    $nmask172 = ip2long('172.16.0.0');
-	    $bcast192 = ip2long('255.255.0.0');
-	    $nmask192 = ip2long('192.168.0.0');
-	    return (($clientIp & $bcast10) == $nmask10) || (($clientIp & $bcast172) == $nmask172) || (($clientIp & $bcast192) == $nmask192);
-	}
-}
-
-if((!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") && !clientInPrivateNet()) die('unauthorized');
+if(!$_SERVER['WEBSOCKET_ENABLED']) die('WebSockets are not enabled on this server.');
+if($_SERVER['WEBSOCKET_AUTH_TYPE'] != 'session') die('WebSocket authorization type is not set to "session"');
 
 $user = new User();
 if(!$user->checkAuth(true)) die();
@@ -121,7 +93,7 @@ if(!$user->checkAuth(true)) die();
 			<pre id="log"></pre>
 			<footer>
 				<p class="pull-right"><a href="#">Nach oben</a></p>
-				<p>&copy; 2014-2015 Homegear UG</p>
+				<p>&copy; 2014-2018 Homegear GmbH</p>
 			</footer>
 		</div>
 		<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
