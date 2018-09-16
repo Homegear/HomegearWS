@@ -1,0 +1,44 @@
+@charset "UTF-8";
+
+body {
+  padding-top: 80px;
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Ubuntu Light'), local('Ubuntu-Light'), url(../fonts/Ubuntu-L.woff2) format('woff2'), url(../fonts/Ubuntu-L.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Ubuntu'), url(../fonts/Ubuntu-R.woff2) format('woff2'), url(../fonts/Ubuntu-R.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Ubuntu Medium'), local('Ubuntu-Medium'), url(../fonts/Ubuntu-M.woff2) format('woff2'), url(../fonts/Ubuntu-M.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Ubuntu Bold'), local('Ubuntu-Bold'), url(../fonts/Ubuntu-B.woff2) format('woff2'), url(../fonts/Ubuntu-B.woff) format('woff');
+}
+
+.hg-alert {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+    margin-right: auto;
+  width: 400px;
+  z-index: 1031;
+}

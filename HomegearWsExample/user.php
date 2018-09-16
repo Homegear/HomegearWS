@@ -22,8 +22,8 @@ class User
                 if(!$username)
                 {
                     $keys = $this->hg->refreshOauthKey($_COOKIE['refreshKey']);
-                    setcookie("accessKey", $keys['access_token']);
-                    setcookie("refreshKey", $keys['refresh_token']);
+                    setcookie("accessKey", $keys['access_token'], time() + 2592000);
+                    setcookie("refreshKey", $keys['refresh_token'], time() + 2592000);
                     $username = $keys['user'];
                 }
                 if($username)

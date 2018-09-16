@@ -1,0 +1,20 @@
+{
+  "name": "@homegear/homegearws",
+  "version": "1.0.0",
+  "description": "HomegearWS is a JavaScript class to communicate with Homegear bidirectionally using WebSockets.",
+  "main": "homegear-ws-1.0.0.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Homegear/HomegearWS.git"
+  },
+  "keywords": ["homegear","websocket"],
+  "author": "Homegear GmbH",
+  "license": "LGPLv3",
+  "bugs": {
+    "url": "https://github.com/Homegear/HomegearWS/issues"
+  },
+  "homepage": "https://github.com/Homegear/HomegearWS"
+}

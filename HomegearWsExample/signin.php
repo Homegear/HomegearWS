@@ -20,7 +20,7 @@ if(isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Homegear UG">
 
-    <title>Signin Template for Bootstrap</title>
+    <title>Homegear</title>
 
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/signin.css" rel="stylesheet">
@@ -52,7 +52,7 @@ if(isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] 
       </form>
 
     </div>
-    <script src="js/jquery.2.1.4.min.js"></script>
+    <script src="js/jquery-3.3.1.slim.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
   </body>
 </html>

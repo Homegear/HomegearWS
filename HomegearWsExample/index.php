@@ -18,14 +18,14 @@ if(!$user->checkAuth(true)) die();
 		<title>HomegearWS example</title>
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/index.css" rel="stylesheet">
-		<script type="text/javascript" src="js/homegear-ws-1.0.0.min.js"></script>
-		<script type="text/javascript" src="js/jquery.2.1.4.min.js"></script>
-		<script type="text/javascript">
+		<script src="js/homegear-ws-1.0.0.min.js"></script>
+		<script src="js/jquery-3.3.1.slim.min.js"></script>
+		<script>
 			var homegear;
 
 			function readCookie(key) {
-			    var result;
-			    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
+				var result;
+				return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
 			}
 
 			function homegearReady() {
@@ -84,7 +84,8 @@ if(!$user->checkAuth(true)) die();
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="#">Home</a></li>
+						<li class="active"><a href="#">HomegearWS</a></li>
+						<li><a href="../WebSshExample/">WebSSH</a></li>
 					</ul>
 				</div>
 			</div>

@@ -4,10 +4,24 @@ HomegearWS is a JavaScript class to communicate with Homegear bidirectionally us
 
 ## Requirements
 
-* Homegear version >= 0.6.0
+* Homegear version >= 0.7.27
 * A current web browser
 
+## Installation
+
+```
+npm install homegearws
+```
+
+Or include `homegear-ws-x.x.x.min.js` in your project.
+
 ## Usage example
+
+Start by include `homegear-ws-x.x.x.min.js` in your project:
+
+```
+<script type="text/javascript" src="node_modules/homegearws/homegear-ws-1.0.0.min.js"></script>
+```
 
 ### Create a new HomegearWS object
 
@@ -24,7 +38,7 @@ var homegear = new HomegearWS('192.168.0.142', 2003, 'MyTestClient', true, 'home
 
 The fourth parameter enables SSL, the fifth is the username and the last parameter the password.
 
-When session authentication is enabled, set the PHP session ID as user name. Make sure to set the PHP session variable "user" to the correct user name as this variable is retrieved by Homegear.
+When session authentication is enabled, set the PHP session ID as user name. Make sure to set the PHP session variable "user" to the correct user name in PHP as this variable is retrieved by Homegear. See the examples on GitHub.
 
 ### Set callback functions
 
