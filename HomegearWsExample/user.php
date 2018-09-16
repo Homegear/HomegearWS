@@ -56,8 +56,8 @@ class User
             if(hg_auth($username, $password) === true)
             {
                 $keys = $this->hg->createOauthKeys($username);
-                setcookie("accessKey", $keys['access_token']);
-                setcookie("refreshKey", $keys['refresh_token']);
+                setcookie("accessKey", $keys['access_token'], time() + 2592000);
+                setcookie("refreshKey", $keys['refresh_token'], time() + 2592000);
                 $_SESSION['authorized'] = true;
                 $_SESSION["user"] = $username;
                 return true;
