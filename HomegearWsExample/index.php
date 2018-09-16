@@ -93,7 +93,6 @@ if(!$user->checkAuth(true)) die();
 		<div class="container" role="main">
 			<pre id="log"></pre>
 			<footer>
-				<p class="pull-right"><a href="#">Nach oben</a></p>
 				<p>&copy; 2014-2018 Homegear GmbH</p>
 			</footer>
 		</div>
