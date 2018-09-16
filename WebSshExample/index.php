@@ -49,7 +49,11 @@ if(!$user->checkAuth(true)) die();
 
 						terminal.blur();
 						homegear.invoke('websshSetScreenSize', null, [terminal.cols, terminal.rows]);
-						homegear.invoke('websshInput', null, '\u000C'); //Clear screen
+						homegear.invoke('websshGetLastOutputs', function(message) {
+							for (var i = 0; i < message.result.length; i++) {
+							    terminal.write(message.result[i]);
+							}
+						});
 					} else {
 						$('.hg-alert-error').remove();
 						var errorDiv = $('<div class="hg-alert alert alert-danger alert-dismissible hg-alert-error" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>Homegear WebSSH doesn\'t seem to be running on your Homegear server.</div>');

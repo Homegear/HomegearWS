@@ -10,7 +10,7 @@ HomegearWS is a JavaScript class to communicate with Homegear bidirectionally us
 ## Installation
 
 ```
-npm install homegearws
+npm install @homegear/homegearws
 ```
 
 Or include `homegear-ws-x.x.x.min.js` in your project.

@@ -1,8 +1,8 @@
 {
   "name": "@homegear/homegearws",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "HomegearWS is a JavaScript class to communicate with Homegear bidirectionally using WebSockets.",
-  "main": "homegear-ws-1.0.0.min.js",
+  "main": "homegear-ws-1.0.3.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
