@@ -2,8 +2,8 @@
 
 HomegearWS is a JavaScript class to communicate with Homegear bidirectionally using WebSockets. It also supports Homegear's WebSSH daemon in conjunction with [xterm.js](https://xtermjs.org/).
 
-![HomegearWS in combination with xterm.js as a Homegear WebSSH client](webssh-screenshot.png "HomegearWS in combination with xterm.js as a Homegear WebSSH client")
-![You can use HomegearWS to implement UIs for Homegear](ui-screenshot.png "You can use HomegearWS to implement UIs for Homegear")
+![HomegearWS in combination with xterm.js as a Homegear WebSSH client](https://github.com/Homegear/HomegearWS/raw/master/webssh-screenshot.png "HomegearWS in combination with xterm.js as a Homegear WebSSH client")
+![You can use HomegearWS to implement UIs for Homegear](https://github.com/Homegear/HomegearWS/raw/master/ui-screenshot.png "You can use HomegearWS to implement UIs for Homegear")
 
 ## Requirements
 
