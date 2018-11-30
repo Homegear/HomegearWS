@@ -118,13 +118,19 @@ HomegearWS.prototype.connectClient = function() {
 				this.subscribePeers();
 			} else this.invokeError("Authentication failed.");
 		} else if(typeof packet.method !== 'undefined') {
-			request = {}
-			this.client.send(JSON.stringify(request));
+			if(this.log) console.log('RPC call from Homegear: ', packet)
+			response = {}
+			this.client.send(JSON.stringify(response));
 			this.invokeEvent(packet);
-		} else if(typeof packet.id !== 'undefined' && typeof this.requests['c' + packet.id] === 'function') {
-			if(this.log) console.log('Response to id ' + packet.id + ' received: ' + event.data);
-			this.requests['c' + packet.id](packet);
-			delete this.requests['c' + packet.id];
+		} else if(typeof packet.id !== 'undefined') {
+			if(this.log) console.log('Response to id ' + packet.id + ' received: ', packet);
+			if(typeof this.requests['c' + packet.id] === 'function')
+			{
+				this.requests['c' + packet.id](packet);
+				delete this.requests['c' + packet.id];
+			}
+		} else {
+			console.log('Unknown packet received: ', packet);
 		}
 	}.bind(this);
 	this.client.onopen = function(event) {
@@ -233,8 +239,9 @@ HomegearWS.prototype.invoke = function(methodName) {
 	if(typeof arguments[0] === 'object' && typeof arguments[0].method !== 'undefined') {
 		if(typeof arguments[1] === 'function') this.requests['c' + counter] = arguments[1];
 		arguments[0].id = counter;
-		var request = JSON.stringify(arguments[0]);
-		if(this.log) console.log('Invoking RPC method: ' + request);
+		var request = arguments[0];
+		if(this.log) console.log('Invoking RPC method (1): ', request);
+		request = JSON.stringify(request);
 		this.send(request);
 	} else {
 		if(typeof methodName !== 'string') return;
@@ -245,8 +252,8 @@ HomegearWS.prototype.invoke = function(methodName) {
 		}
 		if(arguments.length > 1 && typeof arguments[1] === 'function') this.requests['c' + counter] = arguments[1];
 		if(arguments.length > 2) request.params = Array.prototype.slice.call(arguments, 2);
+		if(this.log) console.log('Invoking RPC method (2): ', request);
 		request = JSON.stringify(request);
-		if(this.log) console.log('Invoking RPC method: ' + request);
 		this.send(request);
 	}
 }
