@@ -35,7 +35,7 @@ homegearWsSetTimeout = function (vCallback, nDelay) {
   } : vCallback, nDelay);
 };
 
-function HomegearWS(host, port, id, ssl, user, password)
+function HomegearWS(host, port, id, ssl, user, password, log)
 {
 	this.host = (typeof host !== 'string') ? 'localhost' : host;
 	this.port = (typeof port !== 'undefined') ? port : '2001';
@@ -54,7 +54,7 @@ function HomegearWS(host, port, id, ssl, user, password)
 	this.enabled = false;
 	this.messageCounter = 1;
 	this.requests = {};
-	this.sending = false;
+	//this.sending = false;
 	this.connectTimer = null;
 	this.log = typeof(log)  === 'undefined' ? false : log;
 }
@@ -68,7 +68,7 @@ HomegearWS.prototype.connect = function() {
 
 HomegearWS.prototype.disconnect = function() {
 	this.enabled = false;
-	this.sending = false;
+	//this.sending = false;
 	if(this.client) {
 		this.client.close();
 		this.client = null;
@@ -114,7 +114,7 @@ HomegearWS.prototype.connectClient = function() {
 	this.client.onmessage = function(event) {
 		packet = JSON.parse(event.data);
 		if("auth" in packet) {
-			this.sending = false;
+			//this.sending = false;
 			if(packet.auth == 'success') {
 				console.log('Authenticated.')
 				this.authenticated = true;
@@ -125,12 +125,12 @@ HomegearWS.prototype.connectClient = function() {
 			this.client.send(JSON.stringify(request));
 			this.invokeEvent(packet);
 		} else if(typeof packet.id !== 'undefined' && typeof this.requests['c' + packet.id] === 'function') {
-			this.sending = false;
+			//this.sending = false;
 			if(this.log) console.log('Response to id ' + packet.id + ' received: ' + event.data);
 			this.requests['c' + packet.id](packet);
 			delete this.requests['c' + packet.id];
 		} else {
-			this.sending = false;
+			//this.sending = false;
 		}
 	}.bind(this);
 	this.client.onopen = function(event) {
@@ -230,12 +230,12 @@ HomegearWS.prototype.subscribePeers = function() {
 }
 
 HomegearWS.prototype.send = function(data) {
-	if(this.sending)
+	/*if(this.sending)
 	{
 		homegearWsSetTimeout.call(this, this.send, 0, data);
 		return;
 	}
-	this.sending = true;
+	this.sending = true;*/
 	if(this.client) this.client.send(data);
 }
 

@@ -19,7 +19,7 @@ if(!$user->checkAuth(true)) die();
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/xterm.css" rel="stylesheet">
 		<link href="css/index.css" rel="stylesheet">
-		<script src="js/homegear-ws-1.0.0.min.js"></script>
+		<script src="js/homegear-ws.min.js"></script>
 		<script src="js/jquery-3.3.1.slim.min.js"></script>
 		<script src="js/xterm.js"></script>
 		<script src="js/xterm-fit.js"></script>
