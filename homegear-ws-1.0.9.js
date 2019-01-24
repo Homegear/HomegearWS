@@ -108,7 +108,7 @@ HomegearWS.prototype.invokeEvent = function(data) {
 }
 
 HomegearWS.prototype.connectClient = function() {
-	this.client = new WebSocket(((this.ssl) ? 'wss://' : 'ws://') + this.host + ':' + this.port + '/' + this.id, 'server2');
+	this.client = new WebSocket(((this.ssl) ? 'wss://' : 'ws://') + this.host + (this.port ? ':' + this.port : '') + '/' + this.id, 'server2');
 	this.client.onmessage = function(event) {
 		packet = JSON.parse(event.data);
 		if("auth" in packet) {
