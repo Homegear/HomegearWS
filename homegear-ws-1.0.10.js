@@ -48,10 +48,14 @@ function HomegearWS(host, port, id, ssl, user, password, log)
 	this.client = null;
 	this.authenticated = !this.auth;
 	this.onEvent = Array();
+	this.onConnected = Array();
+	this.onDisconnected = Array();
+	this.onReconnected = Array();
 	this.onReady = Array();
 	this.onError = Array();
 	this.peers = Array();
 	this.enabled = false;
+	this.wasConnected = false;
 	this.messageCounter = 1;
 	this.requests = {};
 	this.connectTimer = null;
@@ -70,6 +74,39 @@ HomegearWS.prototype.disconnect = function() {
 	if(this.client) {
 		this.client.close();
 		this.client = null;
+	}
+}
+
+HomegearWS.prototype.connected = function(callback) {
+	if(typeof callback === 'function') this.onConnected.push(callback);
+}
+
+HomegearWS.prototype.invokeConnected = function() {
+	console.log('Connected.');
+	for(i in this.onConnected) {
+		if(typeof this.onConnected[i] === 'function') this.onConnected[i](); 
+	}
+}
+
+HomegearWS.prototype.disconnected = function(callback) {
+	if(typeof callback === 'function') this.onDisconnected.push(callback);
+}
+
+HomegearWS.prototype.invokeDisconnected = function() {
+	console.log('Disconnected.');
+	for(i in this.onDisconnected) {
+		if(typeof this.onDisconnected[i] === 'function') this.onDisconnected[i](); 
+	}
+}
+
+HomegearWS.prototype.reconnected = function(callback) {
+	if(typeof callback === 'function') this.onReconnected.push(callback);
+}
+
+HomegearWS.prototype.invokeReconnected = function() {
+	console.log('Reconnected.');
+	for(i in this.onReconnected) {
+		if(typeof this.onReconnected[i] === 'function') this.onReconnected[i](); 
 	}
 }
 
@@ -113,7 +150,7 @@ HomegearWS.prototype.connectClient = function() {
 		packet = JSON.parse(event.data);
 		if("auth" in packet) {
 			if(packet.auth == 'success') {
-				console.log('Authenticated.')
+				console.log('Authenticated.');
 				this.authenticated = true;
 				this.subscribePeers();
 			} else this.invokeError("Authentication failed.");
@@ -141,6 +178,9 @@ HomegearWS.prototype.connectClient = function() {
 			};
 			this.send(JSON.stringify(request));
 		} else this.subscribePeers();
+		this.invokeConnected();
+		if(this.wasConnected) this.invokeReconnected();
+		this.wasConnected = true;
 	}.bind(this);
 	this.client.onclose = function(event) {
 		if(this.auth) this.authenticated = false;
@@ -149,7 +189,7 @@ HomegearWS.prototype.connectClient = function() {
 			this.client = null;
 			clearTimeout(this.connectTimer);
 			this.connectTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
-			this.invokeError("Disconnected.");
+			this.invokeDisconnected();
 		}
 	}.bind(this);
 	this.client.onerror = function(event)

@@ -28,6 +28,19 @@ if(!$user->checkAuth(true)) die();
 				return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
 			}
 
+			function homegearConnected() {
+				console.log("Event: Homegear connected.");
+			}
+
+			function homegearDisconnected() {
+				console.log("Event: Homegear disconnected.");
+			}
+
+			function homegearReconnected() {
+				console.log("Event: Homegear reconnected. Reloading...");
+				window.location.reload(true);
+			}
+
 			function homegearReady() {
 				$('.hg-alert-socket-error').remove();
 				homegear.invoke("setLanguage", null, "en-US");
