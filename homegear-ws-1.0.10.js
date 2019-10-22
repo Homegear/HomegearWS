@@ -62,6 +62,10 @@ function HomegearWS(host, port, id, ssl, user, password, log)
 	this.log = typeof(log)  === 'undefined' ? false : log;
 }
 
+HomegearWS.prototype.getCounter = function() {
+	return this.messageCounter++;
+}
+
 HomegearWS.prototype.connect = function() {
 	console.log('Connecting (My ID: ' + this.id + ')...');
 	this.disconnect();
@@ -294,6 +298,17 @@ HomegearWS.prototype.invoke = function(methodName) {
 		if(arguments.length > 2) request.params = Array.prototype.slice.call(arguments, 2);
 		if(this.log) console.log('Invoking RPC method (2): ', request);
 		request = JSON.stringify(request);
+		this.send(request);
+	}
+}
+
+HomegearWS.prototype.invokeRaw = function(jsonString, counter) {
+	if(!this.isReady()) return;
+	var counter = this.messageCounter++;
+	if(typeof arguments[0] === 'string' && typeof arguments[1] === 'number') {
+		if(typeof arguments[2] === 'function') this.requests['c' + counter] = arguments[2];
+		var request = arguments[0];
+		if(this.log) console.log('Invoking RPC method (1): ', request);
 		this.send(request);
 	}
 }
