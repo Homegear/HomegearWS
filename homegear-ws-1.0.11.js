@@ -35,6 +35,13 @@ homegearWsSetTimeout = function (vCallback, nDelay) {
   } : vCallback, nDelay);
 };
 
+homegearWsSetInterval = function (vCallback, nDelay) {
+  var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
+  return setInterval(vCallback instanceof Function ? function () {
+    vCallback.apply(oThis, aArgs);
+  } : vCallback, nDelay);
+};
+
 function HomegearWS(host, port, id, ssl, user, password, log)
 {
 	this.host = (typeof host !== 'string') ? 'localhost' : host;
@@ -59,6 +66,7 @@ function HomegearWS(host, port, id, ssl, user, password, log)
 	this.messageCounter = 1;
 	this.requests = {};
 	this.connectTimer = null;
+	this.pingTimer = null;
 	this.log = typeof(log)  === 'undefined' ? false : log;
 }
 
@@ -185,12 +193,14 @@ HomegearWS.prototype.connectClient = function() {
 		this.invokeConnected();
 		if(this.wasConnected) this.invokeReconnected();
 		this.wasConnected = true;
+		this.pingTimer = homegearWsSetInterval.call(this, this.pingClient, 15000);
 	}.bind(this);
 	this.client.onclose = function(event) {
 		if(this.auth) this.authenticated = false;
 		if(this.enabled)
 		{
 			this.client = null;
+			clearInterval(this.pingTimer);
 			clearTimeout(this.connectTimer);
 			this.connectTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
 			this.invokeDisconnected();
@@ -200,6 +210,7 @@ HomegearWS.prototype.connectClient = function() {
 	{
 		this.client = null;
 		if(this.auth) this.authenticated = false;
+		clearInterval(this.pingTimer);
 		clearTimeout(this.connectTimer);
 		this.connectTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
 		this.invokeError(event.data);
@@ -271,6 +282,12 @@ HomegearWS.prototype.subscribePeers = function() {
 	if(this.log) console.log('Subscribing to peers (2):', this.peers);
 	this.send(JSON.stringify({id:this.messageCounter++,method:"subscribePeers",params:[this.id, this.peers]}));
 	this.invokeReady();
+}
+
+HomegearWS.prototype.pingClient = function() {
+	if(!this.isReady()) return;
+	if(this.log) console.log('Pinging client...');
+	this.send(JSON.stringify({id:this.messageCounter++,method:"logLevel",params:[]}));
 }
 
 HomegearWS.prototype.send = function(data) {
