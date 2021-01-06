@@ -66,6 +66,7 @@ function HomegearWS(host, port, id, ssl, user, password, log)
 	this.messageCounter = 1;
 	this.requests = {};
 	this.connectTimer = null;
+	this.reconnectAttempts = 0;
 	this.pingTimer = null;
 	this.log = typeof(log)  === 'undefined' ? false : log;
 }
@@ -157,6 +158,7 @@ HomegearWS.prototype.invokeEvent = function(data) {
 }
 
 HomegearWS.prototype.connectClient = function() {
+	this.reconnectAttempts++;
 	this.client = new WebSocket(((this.ssl) ? 'wss://' : 'ws://') + this.host + (this.port ? ':' + this.port : '') + '/' + this.id, 'server2');
 	this.client.onmessage = function(event) {
 		packet = JSON.parse(event.data);
@@ -192,6 +194,7 @@ HomegearWS.prototype.connectClient = function() {
 		} else this.subscribePeers();
 		this.invokeConnected();
 		if(this.wasConnected) this.invokeReconnected();
+		this.reconnectAttempts = 0;
 		this.wasConnected = true;
 		this.pingTimer = homegearWsSetInterval.call(this, this.pingClient, 15000);
 	}.bind(this);
@@ -202,7 +205,8 @@ HomegearWS.prototype.connectClient = function() {
 			this.client = null;
 			clearInterval(this.pingTimer);
 			clearTimeout(this.connectTimer);
-			this.connectTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
+			if (this.reconnectAttempts < 4) this.connectTimer = homegearWsSetTimeout.call(this, this.connectClient, 5000);
+			else this.connectTimer = homegearWsSetTimeout.call(this, this.connectClient, 60000);
 			this.invokeDisconnected();
 		}
 	}.bind(this);
