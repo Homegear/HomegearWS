@@ -1,78 +1,52 @@
 <?php
+
 class User
 {
-    private $hg;
-
     public function __construct()
     {
-        ini_set('session.gc_maxlifetime', 5);
-        session_start();
-        $this->hg = new \Homegear\Homegear();
+        session_start(array('name' => 'PHPSESSIDADMIN'));
     }
 
     public function checkAuth($redirectToLogin)
     {
-        $authorized = false;
-        try
-        {
-            $keysSet = isset($_COOKIE['accessKey']) && isset($_COOKIE['refreshKey']);
-            if($keysSet)
-            {
-                $username = $this->hg->verifyOauthKey($_COOKIE['accessKey']);
-                if(!$username)
-                {
-                    $keys = $this->hg->refreshOauthKey($_COOKIE['refreshKey']);
-                    setcookie("accessKey", $keys['access_token'], time() + 2592000);
-                    setcookie("refreshKey", $keys['refresh_token'], time() + 2592000);
-                    $username = $keys['user'];
-                }
-                if($username)
-                {
-                    $_SESSION['authorized'] = true;
-                    $_SESSION['user'] = $username;
-                    $authorized = true;
-                }
-            }
-        }
-        catch(\Homegear\HomegearException $e)
-        {
-            $authorized = false;
+        if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERIFY'] == "SUCCESS" && !isset($_SESSION["authorized"])) {
+            // CERT-Auth
+            $_SESSION['authorized'] = true;
+            $_SESSION['user'] = $_SERVER['SSL_CLIENT_S_DN_CN'];
         }
 
-        if(!$authorized)
-        {
-            $this->logout();
-            if($redirectToLogin) header("Location: signin.php?url=".$_SERVER["REQUEST_URI"]);
-            die("unauthorized");
+        if (array_key_exists('CLIENT_AUTHENTICATED', $_SERVER) && $_SERVER['CLIENT_AUTHENTICATED'] == "true" &&
+            array_key_exists('CLIENT_VERIFIED_USERNAME', $_SERVER) && $_SERVER['CLIENT_VERIFIED_USERNAME']) {
+            $_SESSION['authorized'] = true;
+            $_SESSION['user'] = $_SERVER['CLIENT_VERIFIED_USERNAME'];
         }
+
+        $authorized = (isset($_SESSION["authorized"]) && $_SESSION["authorized"] === true && isset($_SESSION["user"]));
+        if (!$authorized && $redirectToLogin) {
+            header('Location: signin.php');
+            die('unauthorized');
+        }
+        hg_set_user_privileges($_SESSION['user']);
+        if (\Homegear\Homegear::checkServiceAccess('web-ssh') !== true) return -2;
 
         return $authorized;
     }
 
     public function login($username, $password)
     {
-        try
-        {
-            if(hg_auth($username, $password) === true)
-            {
-                $keys = $this->hg->createOauthKeys($username);
-                setcookie("accessKey", $keys['access_token']);
-                setcookie("refreshKey", $keys['refresh_token']);
-                $_SESSION['authorized'] = true;
-                $_SESSION["user"] = $username;
-                return true;
-            }
+        if (hg_auth($username, $password) === true) {
+            hg_set_user_privileges($username);
+            if (\Homegear\Homegear::checkServiceAccess("web-ssh") !== true) return -2;
+            $_SESSION["authorized"] = true;
+            $_SESSION["user"] = $username;
+            return 0;
         }
-        catch(\Homegear\HomegearException $e)
-        {
-        }
-        return false;
+        return -1;
     }
 
     public function logout()
     {
-        if(ini_get("session.use_cookies"))
-        {
+        if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(session_name(), '', time() - 42000,
                 $params["path"], $params["domain"],
@@ -82,4 +56,3 @@ class User
         session_destroy();
     }
 }
-?>

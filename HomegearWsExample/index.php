@@ -106,7 +106,7 @@ if(!$user->checkAuth(true)) die();
 		<div class="container" role="main">
 			<pre id="log"></pre>
 			<footer>
-				<p>&copy; 2014-2018 Homegear GmbH</p>
+				<p>&copy; 2014-2022 Homegear GmbH</p>
 			</footer>
 		</div>
 		<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>

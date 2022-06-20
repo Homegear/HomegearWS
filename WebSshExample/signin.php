@@ -1,58 +1,122 @@
 <?php
 require_once("user.php");
 
-$loginFailed = false;
-if(isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] && $_POST["password"])
-{
-  $user = new User();
-  if($user->login($_POST["username"], $_POST["password"]))
-  {
-    header("Location: index.php");
-  }
-  else $loginFailed = true;
+$loginResult = -3;
+if (isset($_GET["logout"])) {
+    $user = new User();
+    $user->logout();
+} else {
+    if (isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] && $_POST["password"]) {
+        $user = new User();
+        $loginResult = $user->login($_POST["username"], urldecode($_POST["password"]));
+        if ($loginResult === 0) {
+            header("Location: index.php");
+            die();
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Homegear UG">
+    <meta name="author" content="Homegear GmbH">
 
-    <title>Homegear</title>
+    <title>Node-BLUE</title>
 
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/signin.css" rel="stylesheet">
-  </head>
+    <style>
+        body {
+            width: 100%;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #eee;
+        }
 
-  <body>
-    <div class="jumbotron">
-      <div class="container">
-          <img style="float: left; margin-top: 13px; margin-right: 40px" src="images/Logo.png" />
-          <h2>Your</h2>
-          <h1>Homegear Server</h1>
-          <h2>welcomes you!</h2>
-      </div>
-    </div>
-    <div class="container">
-      <form role="form" class="form-signin" action="<?PHP print $_SERVER["PHP_SELF"]; ?>" method="post">
-        <?php if($loginFailed) print "<div class=\"alert alert-danger\" role=\"alert\">Wrong username or password.</div>"; ?>
-        <h2 class="form-signin-heading">Please sign in</h2>
-        <input type="hidden" name="url" value="<?php if(isset($_GET['url'])) print $_GET['url']; ?>" />
-        <div class="form-group">
-          <label for="inputUser" class="sr-only">Username</label>
-          <input type="user" id="inputUser" name="username" class="form-control" placeholder="Username" required autofocus>
-        </div>
-        <div class="form-group">
-          <label for="inputPassword" class="sr-only">Password</label>
-          <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
-        </div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      </form>
+        input {
+            width: 230px;
+            border: none;
+            font-weight: 300;
+            font-size: 20px;
+            padding: 11px 10px 9px;
+            box-sizing: content-box;
+            background: #fff;
+            color: #555;
+            cursor: text;
+            outline: none;
+            border-radius: 3px;
+        }
 
-    </div>
-    <script src="js/jquery-3.3.1.slim.min.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
-  </body>
+        input.inputtop {
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            margin-top: 5px;
+            margin-bottom: 0 !important;
+        }
+
+        input.inputbottom {
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 5px;
+        }
+
+        .alert {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            margin-bottom: 5px;
+            padding: 8px 35px 8px 14px;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid #fbeed5;
+            border-radius: 4px;
+        }
+
+        .alert-danger, .alert-error {
+            color: #b94a48;
+            background-color: #f2dede;
+            border-color: #eed3d7;
+        }
+
+        button {
+            padding: 10px 20px;
+            width: 250px;
+            font-size: 20px;
+            border: 1px solid #3fa9f5;
+            background-color: #3fa9f5;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            border-radius: 3px;
+        }
+
+        p.footer {
+            color: #1b1464;
+            font-weight: 600;
+            text-decoration: none;
+            outline: none;
+            text-align: center;
+            margin-top: 40px
+        }
+    </style>
+</head>
+
+<body>
+<div style="text-align: center; margin-bottom: 20px;"><img style="width: 200px; margin-left: auto; margin-right: auto;"
+                                                           src="images/Logo.png"/></div>
+<div style="position: relative; margin-left: auto; margin-right: auto; width: 250px;">
+    <form role="form" action="<?PHP print $_SERVER["PHP_SELF"]; ?>" method="post">
+        <input type="hidden" name="url" value="<?php if (isset($_GET['url'])) print $_GET['url']; ?>"/>
+        <input type="user" id="inputUser" name="username" class="inputtop" placeholder="User" required autofocus/>
+        <input type="password" id="inputPassword" name="password" class="inputbottom" placeholder="Password" required/>
+        <?php
+        if ($loginResult === -1) print('<div class="alert alert-danger" role="alert">Wrong username or password.</div>');
+        else if ($loginResult === -2) print('<div class="alert alert-danger" role="alert">No access.</div>');
+        ?>
+        <button type="submit">Login</button>
+    </form>
+    <p class="footer">Node-BLUE</p>
+</div>
+</body>
 </html>

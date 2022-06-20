@@ -10,11 +10,18 @@
     "type": "git",
     "url": "git+https://github.com/Homegear/HomegearWS.git"
   },
-  "keywords": ["homegear","websocket","homegearws"],
+  "keywords": [
+    "homegear",
+    "websocket",
+    "homegearws"
+  ],
   "author": "Homegear GmbH",
   "license": "LGPLv3",
   "bugs": {
     "url": "https://github.com/Homegear/HomegearWS/issues"
   },
-  "homepage": "https://github.com/Homegear/HomegearWS"
+  "homepage": "https://github.com/Homegear/HomegearWS",
+  "dependencies": {
+    "xterm": "^4.18.0"
+  }
 }

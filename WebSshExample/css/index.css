@@ -1,9 +1,5 @@
 @charset "UTF-8";
 
-body {
-  padding-top: 80px;
-}
-
 @font-face {
   font-family: 'Ubuntu';
   font-style: normal;
@@ -32,13 +28,30 @@ body {
   src: local('Ubuntu Bold'), local('Ubuntu-Bold'), url(../fonts/Ubuntu-B.woff2) format('woff2'), url(../fonts/Ubuntu-B.woff) format('woff');
 }
 
+.alert {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  margin-bottom: 5px;
+  padding: 8px 35px 8px 14px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid #fbeed5;
+  border-radius: 4px;
+}
+
+.alert-danger, .alert-error {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+
 .hg-alert {
   position: absolute;
+  background: ;
   top: 60px;
   left: 0;
   right: 0;
   margin-left: auto;
-    margin-right: auto;
+  margin-right: auto;
   width: 400px;
   z-index: 1031;
 }
