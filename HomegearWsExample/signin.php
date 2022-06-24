@@ -52,7 +52,7 @@ if(isset($_POST["username"]) && isset($_POST["password"]) && $_POST["username"] 
       </form>
 
     </div>
-    <script src="js/jquery-3.3.1.slim.min.js"></script>
+    <script src="js/jquery.slim.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
   </body>
 </html>

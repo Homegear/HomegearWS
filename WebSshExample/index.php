@@ -11,7 +11,7 @@ if (file_exists(\Homegear\Homegear::WRITEABLE_DATA_PATH . "defaultPassword.txt")
 
 $user = new User();
 
-if (!$_SESSION["authorized"]) {
+if (!isset($_SESSION["authorized"]) || $_SESSION["authorized"] !== true) {
     if (!$user->checkAuth(true)) die("Unauthorized.");
 }
 ?>
@@ -22,14 +22,14 @@ if (!$_SESSION["authorized"]) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Homegear WebSSH example</title>
+    <title>Homegear WebSSH</title>
     <link href="css/xterm.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
     <script src="js/homegear-ws.min.js"></script>
     <script src="js/jquery.slim.min.js"></script>
     <script src="js/xterm.js"></script>
-    <script src="js/xterm-addon-fit.js"></script>
     <script type="module">
+		let token = '<?php print(\Homegear\Homegear::generateWebSshToken()); ?>';
         let homegear;
         let terminal;
 
@@ -42,23 +42,24 @@ if (!$_SESSION["authorized"]) {
             $('.hg-alert-error').remove();
             homegear.invoke("setLanguage", null, "en-US");
 
-            homegear.invoke("system.listMethods", function (message) {
+            homegear.invoke("system.listMethods", (message) => {
                 if (message.result) {
                     terminal.onData((data) => {
-                        homegear.invoke('websshInput', null, data);
+                        homegear.invoke('websshInput', null, token, data);
                     });
 
                     terminal.onResize((data) => {
-                        homegear.invoke('websshSetScreenSize', null, [terminal.cols, terminal.rows]);
+                        homegear.invoke('websshSetScreenSize', null, token, [terminal.cols, terminal.rows]);
                     });
 
                     terminal.blur();
-                    homegear.invoke('websshSetScreenSize', null, [terminal.cols, terminal.rows]);
-                    homegear.invoke('websshGetLastOutputs', function (message) {
-                        for (var i = 0; i < message.result.length; i++) {
+                    homegear.invoke('websshSetScreenSize', null, token, [terminal.cols, terminal.rows]);
+                    homegear.invoke('websshGetLastOutputs', (message) => {
+                    	if (message.result == null) return;
+                        for (let i = 0; i < message.result.length; i++) {
                             terminal.write(message.result[i]);
                         }
-                    });
+                    }, token);
                 } else {
                     $('.hg-alert-error').remove();
                     var errorDiv = $('<div class="hg-alert alert alert-danger alert-dismissible hg-alert-error" role="alert">Homegear WebSSH doesn\'t seem to be running on your Homegear server.</div>');
@@ -109,20 +110,24 @@ if (!$_SESSION["authorized"]) {
 
         $(document).ready(function () {
             terminal = new Terminal();
-            console.log(typeof (FitAddon), FitAddon);
             terminal.open(document.getElementById('terminal'));
             resizeTerminal();
 
             const ssl = window.location.protocol == "https:" ? true : false;
-            const server = window.location.host.substring(0, window.location.host.lastIndexOf(":"));
-            let port = '80';
-            if ((window.location.host.indexOf("]") != -1 && window.location.host.lastIndexOf(":") > window.location.host.indexOf("]")) || (window.location.host.indexOf("]") == -1 && window.location.host.indexOf(":") != -1)) {
-                port = window.location.host.substring(window.location.host.lastIndexOf(":") + 1, window.location.host.length);
-            } else if (ssl) {
-                port = '443';
-            }
-            const sessionId = readCookie('PHPSESSIDADMIN');
-            homegear = new HomegearWS(server, port, 'hg-web-ssh', ssl, sessionId, '');
+			let server = '';
+			let port = ssl ? '443' : '80';
+			let ipEndIndex = window.location.host.indexOf(']');
+			if(ipEndIndex > -1) { //IPv6
+				part2 = window.location.host.substring(ipEndIndex);
+				if(part2.length > 2 && part2.charAt(1) == ':') port = part2.substring(2);
+				server = window.location.host.substring(0, ipEndIndex + 1);
+			} else {
+				var hostArray = window.location.host.split(':');
+				server = hostArray[0];
+				if(hostArray.length > 1) port = hostArray[1];
+			}
+			var sessionId = readCookie('PHPSESSIDADMIN');
+            homegear = new HomegearWS(server, port, 'hg-web-ssh-' + token, ssl, sessionId, '');
             homegear.ready(homegearReady);
             homegear.error(function (message) {
                 if (!message) return;

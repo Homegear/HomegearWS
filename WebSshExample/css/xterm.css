@@ -175,6 +175,6 @@
 }
 
 .xterm-screen .xterm-decoration-container .xterm-decoration {
-	z-index: 6;
-	position: absolute;
+    z-index: 6;
+    position: absolute;
 }

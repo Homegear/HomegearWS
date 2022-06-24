@@ -29,17 +29,17 @@
 */
 
 homegearWsSetTimeout = function (vCallback, nDelay) {
-  var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
-  return setTimeout(vCallback instanceof Function ? function () {
-    vCallback.apply(oThis, aArgs);
-  } : vCallback, nDelay);
+	var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
+	return setTimeout(vCallback instanceof Function ? function () {
+		vCallback.apply(oThis, aArgs);
+	} : vCallback, nDelay);
 };
 
 homegearWsSetInterval = function (vCallback, nDelay) {
-  var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
-  return setInterval(vCallback instanceof Function ? function () {
-    vCallback.apply(oThis, aArgs);
-  } : vCallback, nDelay);
+	var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
+	return setInterval(vCallback instanceof Function ? function () {
+		vCallback.apply(oThis, aArgs);
+	} : vCallback, nDelay);
 };
 
 function HomegearWS(host, port, id, ssl, user, password, log)
@@ -47,7 +47,7 @@ function HomegearWS(host, port, id, ssl, user, password, log)
 	this.host = (typeof host !== 'string') ? 'localhost' : host;
 	this.port = (typeof port !== 'undefined') ? port : '2001';
 	this.id = (typeof id !== 'undefined') ? id : 'HomegearWS';
-	this.id += "-" + this.getGuid();
+	if (this.id.length < 10) this.id += "-" + this.getGuid();
 	this.ssl = (typeof ssl !== 'undefined') ? (ssl === 'true' || ssl === true) : false;
 	this.auth = user ? true : false;
 	this.user = (typeof user !== 'undefined') ? user : undefined;
@@ -97,7 +97,7 @@ HomegearWS.prototype.connected = function(callback) {
 HomegearWS.prototype.invokeConnected = function() {
 	console.log('Connected.');
 	for(i in this.onConnected) {
-		if(typeof this.onConnected[i] === 'function') this.onConnected[i](); 
+		if(typeof this.onConnected[i] === 'function') this.onConnected[i]();
 	}
 }
 
@@ -108,7 +108,7 @@ HomegearWS.prototype.disconnected = function(callback) {
 HomegearWS.prototype.invokeDisconnected = function() {
 	console.log('Disconnected.');
 	for(i in this.onDisconnected) {
-		if(typeof this.onDisconnected[i] === 'function') this.onDisconnected[i](); 
+		if(typeof this.onDisconnected[i] === 'function') this.onDisconnected[i]();
 	}
 }
 
@@ -119,7 +119,7 @@ HomegearWS.prototype.reconnected = function(callback) {
 HomegearWS.prototype.invokeReconnected = function() {
 	console.log('Reconnected.');
 	for(i in this.onReconnected) {
-		if(typeof this.onReconnected[i] === 'function') this.onReconnected[i](); 
+		if(typeof this.onReconnected[i] === 'function') this.onReconnected[i]();
 	}
 }
 
@@ -131,7 +131,7 @@ HomegearWS.prototype.invokeError = function(message) {
 	if(typeof message === 'undefined') return;
 	console.log('Error: ' + message);
 	for(i in this.onError) {
-		if(typeof this.onError[i] === 'function') this.onError[i](message); 
+		if(typeof this.onError[i] === 'function') this.onError[i](message);
 	}
 }
 
@@ -142,7 +142,7 @@ HomegearWS.prototype.ready = function(callback) {
 HomegearWS.prototype.invokeReady = function() {
 	console.log('Ready.');
 	for(i in this.onReady) {
-		if(typeof this.onReady[i] === 'function') this.onReady[i](); 
+		if(typeof this.onReady[i] === 'function') this.onReady[i]();
 	}
 }
 
@@ -153,7 +153,7 @@ HomegearWS.prototype.event = function(callback) {
 HomegearWS.prototype.invokeEvent = function(data) {
 	if(this.log) console.log('Event:', data);
 	for(i in this.onEvent) {
-		if(typeof this.onEvent[i] === 'function') this.onEvent[i](data); 
+		if(typeof this.onEvent[i] === 'function') this.onEvent[i](data);
 	}
 }
 
